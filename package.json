@@ -1,7 +1,7 @@
 {
-  "name": "eventhub-backend",
+  "name": "kork-muy-backend",
   "version": "1.0.0",
-  "description": "EventHub - Event Management Platform Backend",
+  "description": "KorkMuy - Event Management Platform Backend",
   "author": "",
   "private": true,
   "license": "UNLICENSED",
