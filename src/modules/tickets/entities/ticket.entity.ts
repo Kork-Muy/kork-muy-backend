@@ -19,9 +19,6 @@ export class Ticket {
   @ManyToOne(() => Event, (event) => event.tickets)
   event: Event;
 
-  @ManyToOne(() => User, (user) => user.tickets)
-  owner: User;
-
   @Column()
   ticketTypeId: string;
 

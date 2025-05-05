@@ -1,45 +1,71 @@
-import {
-  Controller,
-  Post,
-  Body,
-  UseGuards,
-  Request,
-  HttpCode,
-  HttpStatus,
-} from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+// auth.controller.ts
+import { Controller, Post, Body, UseGuards, Req, Get, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { CreateUserDto } from '../users/dto/create-user.dto';
-import { LoginDto } from './dto/login.dto';
+import { LocalAuthGuard } from './guards/local-auth.guard';
+import { AuthGuard } from '@nestjs/passport';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { Request as ExpressRequest } from 'express';
 
-@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private authService: AuthService) {}
 
   @Post('register')
-  @ApiOperation({ summary: 'Register a new user' })
-  @ApiResponse({ status: 201, description: 'User successfully registered' })
-  async register(@Body() createUserDto: CreateUserDto) {
-    return this.authService.register(createUserDto);
+  async register(@Body() registerDto: any) {
+    return this.authService.register(registerDto);
   }
 
+  @UseGuards(LocalAuthGuard)
   @Post('login')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Login user' })
-  @ApiResponse({ status: 200, description: 'User successfully logged in' })
-  async login(@Body() loginDto: LoginDto) {
-    return this.authService.login(loginDto);
+  async login(@Req() req) {
+    return this.authService.login(req.user);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('refresh')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Refresh access token' })
-  @ApiResponse({ status: 200, description: 'Token successfully refreshed' })
-  async refreshToken(@Request() req: ExpressRequest & { user: { id: string } }) {
-    return this.authService.refreshToken(req.user.id);
+  @Get('profile')
+  getProfile(@Req() req) {
+    return req.user;
   }
-} 
+
+  // Google Auth
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  googleAuth() {
+    // Initiates the Google OAuth2 login flow
+  }
+
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  googleAuthCallback(@Req() req, @Res() res) {
+    const token = req.user.access_token;
+    // Redirect to frontend with token
+    return res.redirect(`${process.env.FRONTEND_URL}/auth/social-callback?token=${token}`);
+  }
+
+  // Facebook Auth
+  @Get('facebook')
+  @UseGuards(AuthGuard('facebook'))
+  facebookAuth() {
+    // Initiates the Facebook OAuth2 login flow
+  }
+
+  @Get('facebook/callback')
+  @UseGuards(AuthGuard('facebook'))
+  facebookAuthCallback(@Req() req, @Res() res) {
+    const token = req.user.access_token;
+    return res.redirect(`${process.env.FRONTEND_URL}/auth/social-callback?token=${token}`);
+  }
+
+  // GitHub Auth
+  @Get('github')
+  @UseGuards(AuthGuard('github'))
+  githubAuth() {
+    // Initiates the GitHub OAuth2 login flow
+  }
+
+  @Get('github/callback')
+  @UseGuards(AuthGuard('github'))
+  githubAuthCallback(@Req() req, @Res() res) {
+    const token = req.user.access_token;
+    return res.redirect(`${process.env.FRONTEND_URL}/auth/social-callback?token=${token}`);
+  }
+}

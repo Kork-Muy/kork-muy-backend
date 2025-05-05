@@ -37,15 +37,7 @@ export class UsersController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update user' })
   @ApiResponse({ status: 200, description: 'User successfully updated' })
-  async update(@Param('id') id: string, @Body() updateData: Partial<CreateUserDto>) {
+  async update(@Param('id') id: number, @Body() updateData: Partial<CreateUserDto>) {
     return this.usersService.update(id, updateData);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Delete(':id')
-  @ApiOperation({ summary: 'Delete user' })
-  @ApiResponse({ status: 200, description: 'User successfully deleted' })
-  async remove(@Param('id') id: string) {
-    return this.usersService.remove(id);
   }
 } 

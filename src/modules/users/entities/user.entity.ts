@@ -1,74 +1,34 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  OneToMany,
-  BeforeInsert,
-  BeforeUpdate,
-} from 'typeorm';
-import { Exclude } from 'class-transformer';
-import * as bcrypt from 'bcrypt';
-import { Event } from '../../events/entities/event.entity';
-import { Ticket } from '../../tickets/entities/ticket.entity';
-import { Auction } from '../../auctions/entities/auction.entity';
+import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity('users')
+@Entity()
 export class User {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-  @Column({ unique: true })
-  username: string;
-
-  @Column({ unique: true })
+  @Column({ unique: true, nullable: false })
   email: string;
 
-  @Column()
-  @Exclude()
+  @Column({ nullable: true })
   password: string;
 
-  @Column({ default: 1 })
-  level: number;
-
-  @Column({ default: 0 })
-  xp: number;
+  @Column({ nullable: true })
+  firstName: string;
 
   @Column({ nullable: true })
-  avatarUrl: string;
+  lastName: string;
 
   @Column({ nullable: true })
-  bio: string;
+  avatar: string;
 
   @Column({ default: false })
   isVerified: boolean;
 
-  @OneToMany(() => Event, (event) => event.creator)
-  createdEvents: Event[];
+  @Column({ nullable: true })
+  googleId: string;
 
-  @OneToMany(() => Ticket, (ticket) => ticket.owner)
-  tickets: Ticket[];
+  @Column({ nullable: true })
+  facebookId: string;
 
-  @OneToMany(() => Auction, (auction) => auction.seller)
-  auctions: Auction[];
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  @BeforeInsert()
-  @BeforeUpdate()
-  async hashPassword() {
-    if (this.password) {
-      const salt = await bcrypt.genSalt();
-      this.password = await bcrypt.hash(this.password, salt);
-    }
-  }
-
-  async validatePassword(password: string): Promise<boolean> {
-    return bcrypt.compare(password, this.password);
-  }
-} 
+  @Column({ nullable: true })
+  githubId: string;
+}

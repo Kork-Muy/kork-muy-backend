@@ -1,75 +1,95 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { ConfigService } from '@nestjs/config';
 import { UsersService } from '../users/users.service';
-import { CreateUserDto } from '../users/dto/create-user.dto';
-import { LoginDto } from './dto/login.dto';
+import * as bcrypt from 'bcrypt';
+import { User } from '../users/entities/user.entity';
 
-@Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
-    private configService: ConfigService,
   ) {}
 
-  async register(createUserDto: CreateUserDto) {
-    const user = await this.usersService.create(createUserDto);
-    const tokens = await this.generateTokens(user.id);
+  async validateUser(email: string, password: string): Promise<any> {
+    const user = await this.usersService.findOne(email);
+    
+    if (user && user.password) {
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (isMatch) {
+        const { password, ...result } = user;
+        return result;
+      }
+    }
+    return null;
+  }
+
+  async login(user: any) {
+    const payload = { email: user.email, sub: user.id };
     return {
-      user,
-      ...tokens,
+      access_token: this.jwtService.sign(payload),
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        avatar: user.avatar,
+      },
     };
   }
 
-  async login(loginDto: LoginDto) {
-    const user = await this.usersService.findByEmail(loginDto.email);
+  async register(userData: Partial<User>) {
+    // Check if user already exists
+    if (!userData.email) {
+      throw new BadRequestException('Email is required');
+    }
+    const existingUser = await this.usersService.findOne(userData.email);
+    if (existingUser) {
+      throw new UnauthorizedException('User with this email already exists');
+    }
+    // Create new user
+    const newUser = await this.usersService.create(userData);
+    const { password, ...result } = newUser;
+    
+    // Generate token
+    return this.login(result);
+  }
+
+  async handleSocialLogin(profile: any, provider: string) {
+    const { id, emails, name, photos } = profile;
+    const email = emails && emails.length > 0 ? emails[0].value : null;
+    
+    if (!email) {
+      throw new BadRequestException('Email is required');
+    }
+
+    // Check if user already exists with this social login
+    let user = await this.usersService.findBySocialId(provider, id);
+    
+    // Check if user exists with this email
     if (!user) {
-      throw new UnauthorizedException('Invalid credentials');
+      user = await this.usersService.findOne(email);
     }
-
-    const isPasswordValid = await user.validatePassword(loginDto.password);
-    if (!isPasswordValid) {
-      throw new UnauthorizedException('Invalid credentials');
+    
+    if (user) {
+      // Update user with social login info if not already set
+      if (!user[`${provider}Id` as keyof User]) {
+        user = await this.usersService.update(user.id, {
+          [`${provider}Id`]: id,
+        });
+      }
+    } else {
+      // Create new user
+      user = await this.usersService.create({
+        email,
+        firstName: name?.givenName || name?.familyName ? name.givenName : null,
+        lastName: name?.familyName || null,
+        avatar: photos && photos.length > 0 ? photos[0].value : null,
+        [`${provider}Id`]: id,
+        isVerified: true, // Social login users are considered verified
+      });
     }
-
-    const tokens = await this.generateTokens(user.id);
-    return {
-      user,
-      ...tokens,
-    };
+    
+    const { password, ...result } = user;
+    return this.login(result);
   }
-
-  async refreshToken(userId: string) {
-    const user = await this.usersService.findOne(userId);
-    if (!user) {
-      throw new UnauthorizedException('Invalid token');
-    }
-
-    return this.generateTokens(user.id);
-  }
-
-  private async generateTokens(userId: string) {
-    const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(
-        { sub: userId },
-        {
-          expiresIn: '15m',
-          secret: this.configService.get('jwt.secret'),
-        },
-      ),
-      this.jwtService.signAsync(
-        { sub: userId },
-        {
-          expiresIn: '7d',
-          secret: this.configService.get('jwt.secret'),
-        },
-      ),
-    ]);
-
-    return {
-      accessToken,
-      refreshToken,
-    };
-  }
-} 
+}
