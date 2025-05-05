@@ -4,6 +4,7 @@ import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
 import { User } from '../users/entities/user.entity';
 
+@Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
@@ -42,7 +43,7 @@ export class AuthService {
     if (!userData.email) {
       throw new BadRequestException('Email is required');
     }
-    console.log(this);
+
     const existingUser = await this.usersService.findOne(userData.email);
     if (existingUser) {
       throw new UnauthorizedException('User with this email already exists');

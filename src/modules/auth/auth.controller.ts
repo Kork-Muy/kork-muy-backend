@@ -16,13 +16,13 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
-  async login(@Req() req) {
+  async login(@Req() req: any) {
     return this.authService.login(req.user);
   }
 
   @UseGuards(JwtAuthGuard)
   @Get('profile')
-  getProfile(@Req() req) {
+  getProfile(@Req() req: any) {
     return req.user;
   }
 
@@ -35,7 +35,7 @@ export class AuthController {
 
   @Get('google/callback')
   @UseGuards(AuthGuard('google'))
-  googleAuthCallback(@Req() req, @Res() res) {
+  googleAuthCallback(@Req() req: any, @Res() res: any) {
     const token = req.user.access_token;
     // Redirect to frontend with token
     return res.redirect(`${process.env.FRONTEND_URL}/auth/social-callback?token=${token}`);
@@ -50,7 +50,7 @@ export class AuthController {
 
   @Get('facebook/callback')
   @UseGuards(AuthGuard('facebook'))
-  facebookAuthCallback(@Req() req, @Res() res) {
+  facebookAuthCallback(@Req() req: any, @Res() res: any) {
     const token = req.user.access_token;
     return res.redirect(`${process.env.FRONTEND_URL}/auth/social-callback?token=${token}`);
   }
@@ -64,7 +64,7 @@ export class AuthController {
 
   @Get('github/callback')
   @UseGuards(AuthGuard('github'))
-  githubAuthCallback(@Req() req, @Res() res) {
+  githubAuthCallback(@Req() req: any, @Res() res: any) {
     const token = req.user.access_token;
     return res.redirect(`${process.env.FRONTEND_URL}/auth/social-callback?token=${token}`);
   }
