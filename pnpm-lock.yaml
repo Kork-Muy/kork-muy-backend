@@ -47,6 +47,9 @@ dependencies:
   compression:
     specifier: ^1.8.0
     version: 1.8.0
+  dotenv:
+    specifier: ^16.5.0
+    version: 16.5.0
   helmet:
     specifier: ^8.1.0
     version: 8.1.0

@@ -42,6 +42,7 @@ export class AuthService {
     if (!userData.email) {
       throw new BadRequestException('Email is required');
     }
+    console.log(this);
     const existingUser = await this.usersService.findOne(userData.email);
     if (existingUser) {
       throw new UnauthorizedException('User with this email already exists');

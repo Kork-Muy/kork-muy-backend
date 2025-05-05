@@ -21,9 +21,6 @@ export class Auction {
   @JoinColumn()
   ticket: Ticket;
 
-  @ManyToOne(() => User, (user) => user.auctions)
-  seller: User;
-
   @Column('decimal', { precision: 10, scale: 2 })
   startingPrice: number;
 

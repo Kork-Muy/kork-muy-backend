@@ -53,9 +53,6 @@ export class Event {
   @Column({ type: 'text', array: true, default: [] })
   imageUrls: string[];
 
-  @ManyToOne(() => User, (user) => user.createdEvents)
-  creator: User;
-
   @ManyToMany(() => User)
   @JoinTable({ name: 'event_coordinators' })
   coordinators: User[];
