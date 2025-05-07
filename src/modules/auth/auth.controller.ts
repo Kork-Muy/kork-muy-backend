@@ -5,7 +5,7 @@ import { LocalAuthGuard } from './guards/local-auth.guard';
 import { AuthGuard } from '@nestjs/passport';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
-@Controller('auth')
+@Controller('api/auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
@@ -38,7 +38,10 @@ export class AuthController {
   googleAuthCallback(@Req() req: any, @Res() res: any) {
     const token = req.user.access_token;
     // Redirect to frontend with token
-    return res.redirect(`${process.env.FRONTEND_URL}/auth/social-callback?token=${token}`);
+    console.log('req', req);
+    const redirectUrl = `${process.env.FRONTEND_URL}/auth/social-callback?token=${token}`;
+    console.log('[redirectUrl]', redirectUrl);
+    return res.redirect(redirectUrl);
   }
 
   // Facebook Auth
