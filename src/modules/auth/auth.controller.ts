@@ -22,8 +22,17 @@ export class AuthController {
 
   @UseGuards(JwtAuthGuard)
   @Get('profile')
-  getProfile(@Req() req: any) {
-    return req.user;
+  getProfile(@Req() req: any) 
+  {
+    console.log('req', req.user);
+    return {
+      id: req.user.id,
+      email: req.user.email,
+      firstname: req.user.firstName,
+      lastname: req.user.lastName,
+      role: req.user.role,
+      avatar: req.user.avatar
+    };
   }
 
   // Google Auth
