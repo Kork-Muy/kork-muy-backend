@@ -6,32 +6,23 @@ import {
   UpdateDateColumn,
   ManyToOne,
   OneToOne,
-} from 'typeorm';
-import { User } from '../../users/entities/user.entity';
-import { Event } from '../../events/entities/event.entity';
-import { Auction } from '../../auctions/entities/auction.entity';
+} from "typeorm";
+import { User } from "../../users/entities/user.entity";
+import { Event } from "../../events/entities/event.entity";
 
-@Entity('tickets')
+@Entity("tickets")
 export class Ticket {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @ManyToOne(() => Event, (event) => event.tickets)
   event: Event;
 
-  @Column()
-  ticketTypeId: string;
+  @ManyToOne(() => User, (user) => user.tickets)
+  user: User;
 
-  @Column({ type: 'jsonb' })
-  ticketData: {
-    name: string;
-    price: number;
-    description: string;
-    seat?: string;
-  };
-
-  @Column({ type: 'text' })
-  encryptedData: string;
+  @Column({ type: "jsonb" })
+  ticketData: Record<string, any>;
 
   @Column({ default: false })
   isUsed: boolean;
@@ -42,9 +33,6 @@ export class Ticket {
   @Column({ nullable: true })
   transferredFrom: string;
 
-  @OneToOne(() => Auction, (auction) => auction.ticket, { nullable: true })
-  auction: Auction;
-
   @Column({ default: false })
   isTransferable: boolean;
 
@@ -53,7 +41,4 @@ export class Ticket {
 
   @UpdateDateColumn()
   updatedAt: Date;
-
-  @Column({ type: 'jsonb', nullable: true })
-  metadata: Record<string, any>;
-} 
+}

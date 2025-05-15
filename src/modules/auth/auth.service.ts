@@ -1,8 +1,12 @@
-import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { UsersService } from '../users/users.service';
-import * as bcrypt from 'bcrypt';
-import { User } from '../users/entities/user.entity';
+import {
+  Injectable,
+  UnauthorizedException,
+  BadRequestException,
+} from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import { UsersService } from "../users/users.service";
+import * as bcrypt from "bcrypt";
+import { User } from "../users/entities/user.entity";
 
 @Injectable()
 export class AuthService {
@@ -13,7 +17,7 @@ export class AuthService {
 
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.usersService.findOne(email);
-    
+
     if (user && user.password) {
       const isMatch = await bcrypt.compare(password, user.password);
       if (isMatch) {
@@ -41,17 +45,17 @@ export class AuthService {
   async register(userData: Partial<User>) {
     // Check if user already exists
     if (!userData.email) {
-      throw new BadRequestException('Email is required');
+      throw new BadRequestException("Email is required");
     }
 
     const existingUser = await this.usersService.findOne(userData.email);
     if (existingUser) {
-      throw new UnauthorizedException('User with this email already exists');
+      throw new UnauthorizedException("User with this email already exists");
     }
     // Create new user
     const newUser = await this.usersService.create(userData);
     const { password, ...result } = newUser;
-    
+
     // Generate token
     return this.login(result);
   }
@@ -59,19 +63,19 @@ export class AuthService {
   async handleSocialLogin(profile: any, provider: string) {
     const { id, emails, name, photos } = profile;
     const email = emails && emails.length > 0 ? emails[0].value : null;
-    
+
     if (!email) {
-      throw new BadRequestException('Email is required');
+      throw new BadRequestException("Email is required");
     }
 
     // Check if user already exists with this social login
     let user = await this.usersService.findBySocialId(provider, id);
-    
+
     // Check if user exists with this email
     if (!user) {
       user = await this.usersService.findOne(email);
     }
-    
+
     if (user) {
       // Update user with social login info if not already set
       if (!user[`${provider}Id` as keyof User]) {
@@ -90,7 +94,7 @@ export class AuthService {
         isVerified: true, // Social login users are considered verified
       });
     }
-    
+
     const { password, ...result } = user;
     return this.login(result);
   }

@@ -6,26 +6,30 @@ import {
   UpdateDateColumn,
   ManyToMany,
   JoinTable,
-} from 'typeorm';
-import { User } from '../../users/entities/user.entity';
+} from "typeorm";
+import { User } from "../../users/entities/user.entity";
 
-@Entity('quests')
+@Entity("quests")
 export class Quest {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column()
   title: string;
 
-  @Column('text')
+  @Column("text")
   description: string;
 
   @Column()
   xpReward: number;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: "jsonb" })
   requirements: {
-    type: 'event_attendance' | 'create_event' | 'ticket_purchase' | 'auction_participation';
+    type:
+      | "event_attendance"
+      | "create_event"
+      | "ticket_purchase"
+      | "auction_participation";
     count: number;
     eventType?: string;
     timeFrame?: {
@@ -44,17 +48,20 @@ export class Quest {
   endDate: Date;
 
   @ManyToMany(() => User)
-  @JoinTable({ name: 'user_quests' })
+  @JoinTable({ name: "user_quests" })
   participants: User[];
 
-  @Column({ type: 'jsonb', default: {} })
-  userProgress: Record<string, {
-    completed: boolean;
-    progress: number;
-    completedAt?: Date;
-  }>;
+  @Column({ type: "jsonb", default: {} })
+  userProgress: Record<
+    string,
+    {
+      completed: boolean;
+      progress: number;
+      completedAt?: Date;
+    }
+  >;
 
-  @Column({ type: 'text', array: true, default: [] })
+  @Column({ type: "text", array: true, default: [] })
   tags: string[];
 
   @Column({ default: 0 })
@@ -65,4 +72,4 @@ export class Quest {
 
   @UpdateDateColumn()
   updatedAt: Date;
-} 
+}

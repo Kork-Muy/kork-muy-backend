@@ -8,26 +8,22 @@ import {
   OneToOne,
   JoinColumn,
   OneToMany,
-} from 'typeorm';
-import { User } from '../../users/entities/user.entity';
-import { Ticket } from '../../tickets/entities/ticket.entity';
+} from "typeorm";
+import { User } from "../../users/entities/user.entity";
+import { Ticket } from "../../tickets/entities/ticket.entity";
 
-@Entity('auctions')
+@Entity("auctions")
 export class Auction {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @OneToOne(() => Ticket, (ticket) => ticket.auction)
-  @JoinColumn()
-  ticket: Ticket;
-
-  @Column('decimal', { precision: 10, scale: 2 })
+  @Column("decimal", { precision: 10, scale: 2 })
   startingPrice: number;
 
-  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  @Column("decimal", { precision: 10, scale: 2, nullable: true })
   reservePrice: number;
 
-  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  @Column("decimal", { precision: 10, scale: 2, nullable: true })
   currentPrice: number;
 
   @Column()
@@ -36,13 +32,13 @@ export class Auction {
   @Column()
   endTime: Date;
 
-  @Column({ default: 'active' })
-  status: 'active' | 'completed' | 'cancelled';
+  @Column({ default: "active" })
+  status: "active" | "completed" | "cancelled";
 
   @Column({ nullable: true })
   winnerId: string;
 
-  @Column({ type: 'jsonb', default: [] })
+  @Column({ type: "jsonb", default: [] })
   bids: {
     userId: string;
     amount: number;
@@ -52,7 +48,7 @@ export class Auction {
   @Column({ default: false })
   isInstantBuyEnabled: boolean;
 
-  @Column('decimal', { precision: 10, scale: 2, nullable: true })
+  @Column("decimal", { precision: 10, scale: 2, nullable: true })
   instantBuyPrice: number;
 
   @CreateDateColumn()
@@ -60,4 +56,4 @@ export class Auction {
 
   @UpdateDateColumn()
   updatedAt: Date;
-} 
+}

@@ -8,19 +8,19 @@ import {
   OneToMany,
   ManyToMany,
   JoinTable,
-} from 'typeorm';
-import { User } from '../../users/entities/user.entity';
-import { Ticket } from '../../tickets/entities/ticket.entity';
+} from "typeorm";
+import { User } from "../../users/entities/user.entity";
+import { Ticket } from "../../tickets/entities/ticket.entity";
 
-@Entity('events')
+@Entity("events")
 export class Event {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
   @Column()
   title: string;
 
-  @Column('text')
+  @Column("text")
   description: string;
 
   @Column()
@@ -29,7 +29,7 @@ export class Event {
   @Column()
   location: string;
 
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: "jsonb", nullable: true })
   coordinates: { lat: number; lng: number };
 
   @Column({ default: false })
@@ -38,10 +38,10 @@ export class Event {
   @Column({ default: 0 })
   minLevel: number;
 
-  @Column({ type: 'int', default: 0 })
+  @Column({ type: "int", default: 0 })
   maxAttendees: number;
 
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: "jsonb", nullable: true })
   ticketTypes: {
     id: string;
     name: string;
@@ -50,11 +50,11 @@ export class Event {
     description: string;
   }[];
 
-  @Column({ type: 'text', array: true, default: [] })
+  @Column({ type: "text", array: true, default: [] })
   imageUrls: string[];
 
   @ManyToMany(() => User)
-  @JoinTable({ name: 'event_coordinators' })
+  @JoinTable({ name: "event_coordinators" })
   coordinators: User[];
 
   @OneToMany(() => Ticket, (ticket) => ticket.event)
@@ -68,4 +68,4 @@ export class Event {
 
   @UpdateDateColumn()
   updatedAt: Date;
-} 
+}

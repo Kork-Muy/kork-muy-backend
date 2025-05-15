@@ -1,6 +1,15 @@
 // src/modules/events/dto/create-event.dto.ts
-import { IsArray, IsBoolean, IsDate, IsInt, IsNotEmpty, IsOptional, IsString, Min } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsArray,
+  IsBoolean,
+  IsDate,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Min,
+} from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
 
 export class CreateEventDto {
   @ApiProperty()

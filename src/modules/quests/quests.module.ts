@@ -1,6 +1,6 @@
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Quest } from './entities/quest.entity';
+import { Module } from "@nestjs/common";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { Quest } from "./entities/quest.entity";
 
 @Module({
   imports: [TypeOrmModule.forFeature([Quest])],
@@ -8,4 +8,4 @@ import { Quest } from './entities/quest.entity';
   providers: [],
   exports: [],
 })
-export class QuestsModule {} 
+export class QuestsModule {}

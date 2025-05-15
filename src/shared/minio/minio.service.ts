@@ -1,7 +1,7 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import * as Minio from 'minio';
-import { BufferedFile } from './file.model';
+import { Injectable, OnModuleInit } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import * as Minio from "minio";
+import { BufferedFile } from "./file.model";
 
 @Injectable()
 export class MinioService implements OnModuleInit {
@@ -9,7 +9,7 @@ export class MinioService implements OnModuleInit {
   private readonly bucketName: string;
 
   constructor(private configService: ConfigService) {
-    const minioConfig = this.configService.get('minio');
+    const minioConfig = this.configService.get("minio");
     this.bucketName = minioConfig.bucketName;
 
     this.minioClient = new Minio.Client({
@@ -28,15 +28,15 @@ export class MinioService implements OnModuleInit {
         await this.minioClient.makeBucket(this.bucketName);
       }
     } catch (error) {
-      console.error('MinIO initialization error:', error);
+      console.error("MinIO initialization error:", error);
       throw error;
     }
   }
 
   async upload(file: BufferedFile, path: string): Promise<string> {
     const metaData = {
-      'Content-Type': file.mimetype,
-      'X-Amz-Meta-Testing': '1234',
+      "Content-Type": file.mimetype,
+      "X-Amz-Meta-Testing": "1234",
     };
 
     const objectName = `${path}/${Date.now()}-${file.originalname}`;
@@ -74,4 +74,4 @@ export class MinioService implements OnModuleInit {
       throw error;
     }
   }
-} 
+}

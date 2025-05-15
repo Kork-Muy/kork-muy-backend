@@ -5,4 +5,4 @@ export interface BufferedFile {
   mimetype: string;
   size: number;
   buffer: Buffer | string;
-} 
+}

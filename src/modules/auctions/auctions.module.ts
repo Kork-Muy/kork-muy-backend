@@ -1,6 +1,6 @@
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Auction } from './entities/auction.entity';
+import { Module } from "@nestjs/common";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { Auction } from "./entities/auction.entity";
 
 @Module({
   imports: [TypeOrmModule.forFeature([Auction])],
@@ -8,4 +8,4 @@ import { Auction } from './entities/auction.entity';
   providers: [],
   exports: [],
 })
-export class AuctionsModule {} 
+export class AuctionsModule {}

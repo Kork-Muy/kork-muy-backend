@@ -1,5 +1,11 @@
-import { IsBoolean, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import {
+  IsBoolean,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
 
 export class CreateTicketDto {
   @ApiProperty()
