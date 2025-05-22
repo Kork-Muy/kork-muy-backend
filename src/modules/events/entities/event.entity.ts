@@ -20,6 +20,12 @@ export class Event {
   @Column()
   title: string;
 
+  @Column()
+  coverImageUrl: string;
+
+  @Column()
+  bannerImageUrl: string;
+
   @Column("text")
   description: string;
 

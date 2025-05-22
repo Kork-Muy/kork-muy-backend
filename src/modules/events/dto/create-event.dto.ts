@@ -31,6 +31,16 @@ export class CreateEventDto {
   @IsNotEmpty()
   location: string;
 
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  coverImageUrl: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  bannerImageUrl: string;
+
   @ApiProperty({ required: false })
   @IsOptional()
   coordinates?: { lat: number; lng: number };
