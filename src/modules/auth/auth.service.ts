@@ -144,11 +144,13 @@ export class AuthService {
       }
     }
     return {
-      id: user.id,
-      email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
-      avatar: user.avatar,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        avatar: user.avatar,
+      }
     };
   }
 
@@ -177,6 +179,13 @@ export class AuthService {
 
     return {
       access_token: newAccessToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        avatar: user.avatar,
+      },
     };
   }
 }

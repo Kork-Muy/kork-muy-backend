@@ -53,10 +53,9 @@ export class AuthController {
   @Get("google/callback")
   @UseGuards(AuthGuard("google"))
   googleAuthCallback(@Req() req: any, @Res() res: any) {
-    const token = req.user.access_token;
-    // Redirect to frontend with token
-    console.log("req", req);
-    const redirectUrl = `${process.env.FRONTEND_URL}/auth/social-callback?token=${token}`;
+    const accessToken = req.user.access_token;
+    const refreshToken = req.user.refresh_token;
+    const redirectUrl = `${process.env.FRONTEND_URL}/auth/social-callback?access_token=${accessToken}&refresh_token=${refreshToken}`;
     console.log("[redirectUrl]", redirectUrl);
     return res.redirect(redirectUrl);
   }
