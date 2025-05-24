@@ -31,15 +31,16 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get("profile")
   getProfile(@Req() req: any) {
-    console.log("req", req.user);
-    return {
-      id: req.user.id,
-      email: req.user.email,
-      firstname: req.user.firstName,
-      lastname: req.user.lastName,
-      role: req.user.role,
-      avatar: req.user.avatar,
-    };
+    const token = req.headers.authorization.split(" ")[1];
+    console.log("token", token);
+    return this.authService.verifyToken(token);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post("refresh-token")
+  async renewAccessToken(@Req() req: any) {
+    const refreshToken = req.headers.authorization.split(" ")[1];
+    return this.authService.refreshToken(refreshToken);
   }
 
   // Google Auth

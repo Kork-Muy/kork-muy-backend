@@ -7,12 +7,17 @@ import { JwtService } from "@nestjs/jwt";
 import { UsersService } from "../users/users.service";
 import * as bcrypt from "bcrypt";
 import { User } from "../users/entities/user.entity";
+import { InjectRepository } from "@nestjs/typeorm";
+import { UserAuth } from "./entities/user-auth.entity";
+import { Repository } from "typeorm";
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    @InjectRepository(UserAuth)
+    private userAuthRepository: Repository<UserAuth>,
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
@@ -28,10 +33,27 @@ export class AuthService {
     return null;
   }
 
-  async login(user: any) {
+  async login(user: any, provider?: string) {
     const payload = { email: user.email, sub: user.id };
+    const access_token = this.jwtService.sign(payload, { expiresIn: "1h" });
+    const refresh_token = this.jwtService.sign(payload, { expiresIn: "7d" });
+
+    const userAuth = this.userAuthRepository.create({
+      userId: user.id,
+      accessToken: access_token,
+      refreshToken: refresh_token,
+      accessTokenExpiresAt: new Date(Date.now() + 1 * 60 * 60 * 1000),
+      refreshTokenExpiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      provider: provider || "local",
+      createdAt: new Date(),
+    });
+    await this.userAuthRepository.save(userAuth);
+
+    console.log("userAuth", userAuth);
+
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token,
+      refresh_token,
       user: {
         id: user.id,
         email: user.email,
@@ -96,6 +118,65 @@ export class AuthService {
     }
 
     const { password, ...result } = user;
-    return this.login(result);
+    return this.login(result, provider);
+  }
+
+  async verifyToken(token: string) {
+    console.log("token", token);
+    const decoded = this.jwtService.verify(token);
+    console.log("decoded", decoded);
+    const userAuth = await this.userAuthRepository.findOne({
+      where: {
+        accessToken: token,
+      },
+    });
+    console.log("userAuth", userAuth);
+    if (!userAuth) {
+      throw new UnauthorizedException("Invalid token");
+    }
+    const user = await this.usersService.findById(userAuth.userId);
+    if (!user) {
+      throw new UnauthorizedException("Invalid token");
+    }
+    if (userAuth.accessTokenExpiresAt < new Date()) {
+      if (userAuth.refreshTokenExpiresAt < new Date()) {
+        throw new UnauthorizedException("Token expired");
+      }
+    }
+    return {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      avatar: user.avatar,
+    };
+  }
+
+  async refreshToken(refreshToken: string) {
+    const decoded = this.jwtService.verify(refreshToken);
+    const userAuth = await this.userAuthRepository.findOne({
+      where: {
+        refreshToken: refreshToken,
+      },
+    });
+    if (!userAuth) {
+      throw new UnauthorizedException("Invalid token");
+    }
+    const user = await this.usersService.findById(userAuth.userId);
+
+    if (!user) {
+      throw new UnauthorizedException("Invalid token");
+    }
+    const newAccessToken = this.jwtService.sign(
+      { email: user.email, sub: user.id },
+      { expiresIn: "1h" },
+    );
+    userAuth.accessToken = newAccessToken;
+    userAuth.accessTokenExpiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000);
+    await this.userAuthRepository.save(userAuth);
+
+    return {
+      access_token: newAccessToken,
+    };
   }
 }
