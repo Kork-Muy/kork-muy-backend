@@ -57,8 +57,8 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        firstname: user.firstName,
+        lastname: user.lastName,
         avatar: user.avatar,
       },
     };
@@ -84,6 +84,8 @@ export class AuthService {
 
   async handleSocialLogin(profile: any, provider: string) {
     const { id, emails, name, photos } = profile;
+
+    console.log("social login", id, emails, name, photos);
     const email = emails && emails.length > 0 ? emails[0].value : null;
 
     if (!email) {
@@ -92,6 +94,7 @@ export class AuthService {
 
     // Check if user already exists with this social login
     let user = await this.usersService.findBySocialId(provider, id);
+    console.log("user", user);
 
     // Check if user exists with this email
     if (!user) {
@@ -105,12 +108,16 @@ export class AuthService {
           [`${provider}Id`]: id,
         });
       }
+      user.firstName = name?.givenName || name?.familyName ? name.givenName : '';
+      user.lastName = name?.familyName || '';
+      user.avatar = photos && photos.length > 0 ? photos[0].value : null;
+      await this.usersService.update(user.id, user);
     } else {
       // Create new user
       user = await this.usersService.create({
         email,
-        firstName: name?.givenName || name?.familyName ? name.givenName : null,
-        lastName: name?.familyName || null,
+        firstName: name?.givenName || name?.familyName ? name.givenName : '',
+        lastName: name?.familyName || '',
         avatar: photos && photos.length > 0 ? photos[0].value : null,
         [`${provider}Id`]: id,
         isVerified: true, // Social login users are considered verified
@@ -147,8 +154,8 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
+        firstname: user.firstName,
+        lastname: user.lastName,
         avatar: user.avatar,
       }
     };
