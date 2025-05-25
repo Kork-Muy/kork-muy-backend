@@ -23,6 +23,12 @@ export class CreateEventDto {
   description: string;
 
   @ApiProperty()
+  @IsInt()
+  @Min(1)
+  @IsNotEmpty()
+  ticketSlots: number;
+
+  @ApiProperty()
   @IsDate()
   date: Date;
 

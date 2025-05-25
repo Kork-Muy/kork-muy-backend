@@ -5,17 +5,33 @@ import { Repository } from "typeorm";
 import { Event } from "./entities/event.entity";
 import { CreateEventDto } from "./dto/create-event.dto";
 import { UpdateEventDto } from "./dto/update-event.dto";
+import { TicketSlot } from "../tickets/entities/ticket-slot.entity";
 
 @Injectable()
 export class EventsService {
   constructor(
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
+    @InjectRepository(TicketSlot)
+    private readonly ticketSlotRepository: Repository<TicketSlot>,
   ) {}
 
   async create(createEventDto: CreateEventDto): Promise<Event> {
-    const event = this.eventRepository.create(createEventDto);
-    return this.eventRepository.save(event);
+    let event = this.eventRepository.create(createEventDto);
+    event = await this.eventRepository.save(event);
+    const ticketSlots = [];
+    for (let i = 0; i < createEventDto.ticketSlots; i++) {
+      const ticketSlot = this.ticketSlotRepository.create({
+        eventId: event.id,
+        status: "available",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      });
+      ticketSlots.push(ticketSlot);
+    }
+      
+    await this.ticketSlotRepository.save(ticketSlots);
+    return event;
   }
 
   async findAll(): Promise<Event[]> {

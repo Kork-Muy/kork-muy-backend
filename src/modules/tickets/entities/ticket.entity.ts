@@ -15,6 +15,9 @@ export class Ticket {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
+  @Column()
+  qrcode: string;
+
   @ManyToOne(() => Event, (event) => event.tickets)
   event: Event;
 

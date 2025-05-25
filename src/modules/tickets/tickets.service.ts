@@ -8,6 +8,8 @@ import { Event } from "../events/entities/event.entity";
 import { UsersService } from "../users/users.service";
 import { BuyTicketDto } from "./dto/buy-ticket.dto";
 import { TicketBuilder } from "./builders/ticket-builder.builder";
+import { User } from "../users/entities/user.entity";
+import { TicketSlot } from "./entities/ticket-slot.entity";
 
 @Injectable()
 export class TicketsService {
@@ -16,6 +18,8 @@ export class TicketsService {
     private readonly ticketRepository: Repository<Ticket>,
     @InjectRepository(Event)
     private readonly eventRepository: Repository<Event>,
+    @InjectRepository(TicketSlot)
+    private readonly ticketSlotRepository: Repository<TicketSlot>,
     private readonly usersService: UsersService,
   ) {}
 
@@ -53,12 +57,28 @@ export class TicketsService {
         `User with ID ${request.user.id} not found`,
       );
     }
+    const availableTicketSlot = await this.ticketSlotRepository.findOne({
+      where: { eventId: event.id, status: "available" },
+    });
+    if (!availableTicketSlot) {
+      throw new NotFoundException("Ticket slot not available");
+    }
+    
+    availableTicketSlot.status = "bought";
+    availableTicketSlot.updatedAt = new Date();
+    await this.ticketSlotRepository.save(availableTicketSlot);
+
     const ticketBuilder = new TicketBuilder();
     ticketBuilder.setEvent(event);
     ticketBuilder.setUser(user);
     ticketBuilder.setTicketData(buyTicketDto.ticketData);
+    ticketBuilder.setTicketSlot(availableTicketSlot);
     const ticket = ticketBuilder.build();
+
     const savedTicket = await this.ticketRepository.save(ticket);
+    availableTicketSlot.ticketId = savedTicket.id;
+    
+    await this.ticketSlotRepository.save(availableTicketSlot);
     return {
       message: "Ticket bought successfully",
       event,
@@ -67,8 +87,11 @@ export class TicketsService {
     };
   }
 
-  async findAll(): Promise<Ticket[]> {
-    return this.ticketRepository.find({ relations: ["event"] });
+  async findAll(user: User): Promise<Ticket[]> {
+    return this.ticketRepository.find({
+      relations: ["event", "user"],
+      where: { user: { id: user.id } },
+    });
   }
 
   async findOne(id: string): Promise<Ticket> {

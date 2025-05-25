@@ -36,11 +36,17 @@ export class TicketsController {
   }
 
   @Get()
-  findAll() {
-    return this.ticketsService.findAll();
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  findAll(@Req() req: any) {
+    console.log("findAll", req);
+    const user = req.user;
+    return this.ticketsService.findAll(user);
   }
 
   @Get(":id")
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   findOne(@Param("id") id: string) {
     return this.ticketsService.findOne(id);
   }
