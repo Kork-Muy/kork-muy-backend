@@ -10,6 +10,7 @@ import { BuyTicketDto } from "./dto/buy-ticket.dto";
 import { TicketBuilder } from "./builders/ticket-builder.builder";
 import { User } from "../users/entities/user.entity";
 import { TicketSlot } from "./entities/ticket-slot.entity";
+import { UserDto } from "src/shared/dto/use.dto";
 
 @Injectable()
 export class TicketsService {
@@ -87,11 +88,27 @@ export class TicketsService {
     };
   }
 
-  async findAll(user: User): Promise<Ticket[]> {
-    return this.ticketRepository.find({
+  async findAll(user: User) {
+    const tickets = await this.ticketRepository.find({
       relations: ["event", "user"],
       where: { user: { id: user.id } },
     });
+
+    return {
+      tickets: tickets.map((ticket) => (
+        {
+          id: ticket.id,
+          qrcode: ticket.qrcode,
+          ticketData: ticket.ticketData,
+          isUsed: ticket.isUsed,
+          usedAt: ticket.usedAt,
+          transferredFrom: ticket.transferredFrom,
+          isTransferable: ticket.isTransferable,
+          event: ticket.event,
+          user: new UserDto(ticket.user)
+        }
+      )),
+    }
   }
 
   async findOne(id: string): Promise<Ticket> {
