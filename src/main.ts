@@ -4,13 +4,15 @@ import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { AppModule } from "./app.module";
 import * as compression from "compression";
 import helmet from "helmet";
+import * as cookieParser from "cookie-parser";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Enable CORS
+  // Enable CORS with credentials
   app.enableCors({
     origin: process.env.FRONTEND_URL,
+    credentials: true,
   });
 
   app.setGlobalPrefix("api");
@@ -18,6 +20,7 @@ async function bootstrap() {
   // Security middleware
   app.use(helmet());
   app.use(compression());
+  app.use(cookieParser());
 
   // Global validation pipe
   app.useGlobalPipes(
@@ -36,7 +39,12 @@ async function bootstrap() {
     .setTitle("EventHub API")
     .setDescription("The EventHub API documentation")
     .setVersion("1.0")
-    .addBearerAuth()
+    .addCookieAuth('access_token', {
+      type: 'apiKey',
+      in: 'cookie',
+      name: 'access_token',
+      description: 'Access token stored in HTTP-only cookie'
+    })
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup("api/docs", app, document);

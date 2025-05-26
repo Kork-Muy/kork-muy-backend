@@ -12,6 +12,8 @@ import { AuthService } from "./auth.service";
 import { LocalAuthGuard } from "./guards/local-auth.guard";
 import { AuthGuard } from "@nestjs/passport";
 import { JwtAuthGuard } from "./guards/jwt-auth.guard";
+import { JwtCookieGuard } from "./guards/jwt-cookie.guard";
+import { Request, Response } from "express";
 
 @Controller("auth")
 export class AuthController {
@@ -24,23 +26,22 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post("login")
-  async login(@Req() req: any) {
-    return this.authService.login(req.user);
+  async login(@Req() req: Request, @Res() res: Response) {
+    const { user } = await this.authService.login(req.user, "local", res);
+    return res.json(user);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtCookieGuard)
   @Get("profile")
-  getProfile(@Req() req: any) {
-    const token = req.headers.authorization.split(" ")[1];
-    console.log("token", token);
-    return this.authService.verifyToken(token);
+  getProfile(@Req() req: Request) {
+    const { user } = req;
+    return user;
   }
 
   @UseGuards(JwtAuthGuard)
   @Post("refresh-token")
-  async renewAccessToken(@Req() req: any) {
-    const refreshToken = req.headers.authorization.split(" ")[1];
-    return this.authService.refreshToken(refreshToken);
+  renewAccessToken(@Req() req: Request, @Res() res: Response) {
+    return this.authService.refreshToken(req, res);
   }
 
   // Google Auth
@@ -52,11 +53,12 @@ export class AuthController {
 
   @Get("google/callback")
   @UseGuards(AuthGuard("google"))
-  googleAuthCallback(@Req() req: any, @Res() res: any) {
-    const accessToken = req.user.access_token;
-    const refreshToken = req.user.refresh_token;
-    const redirectUrl = `${process.env.FRONTEND_URL}/auth/social-callback?access_token=${accessToken}&refresh_token=${refreshToken}`;
-    console.log("[redirectUrl]", redirectUrl);
+  async googleAuthCallback(@Req() req: any, @Res() res: Response) {
+
+    console.log("google/callback", req.user.user);
+    const { user } = await this.authService.handleSocialLogin(req.user.user, "google", res);
+
+    const redirectUrl = `${process.env.FRONTEND_URL}/auth/social-callback`;
     return res.redirect(redirectUrl);
   }
 

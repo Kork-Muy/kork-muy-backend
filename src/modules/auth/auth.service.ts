@@ -10,6 +10,8 @@ import { User } from "../users/entities/user.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserAuth } from "./entities/user-auth.entity";
 import { Repository } from "typeorm";
+import { Request, Response } from "express";
+import { UserDto } from "src/shared/dto/use.dto";
 
 @Injectable()
 export class AuthService {
@@ -33,7 +35,7 @@ export class AuthService {
     return null;
   }
 
-  async login(user: any, provider?: string) {
+  async login(user: any, provider?: string, res?: Response) {
     const payload = { email: user.email, sub: user.id };
     const access_token = this.jwtService.sign(payload, { expiresIn: "1h" });
     const refresh_token = this.jwtService.sign(payload, { expiresIn: "7d" });
@@ -49,11 +51,22 @@ export class AuthService {
     });
     await this.userAuthRepository.save(userAuth);
 
-    console.log("userAuth", userAuth);
+   
+
+    if(res) {
+      res.cookie("access_token", access_token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 1000 * 60 * 60, // 1hour
+      });
+      res.cookie("refresh_token", refresh_token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 1000 * 60 * 60 * 24 * 30, // 30 days
+      });
+    }
 
     return {
-      access_token,
-      refresh_token,
       user: {
         id: user.id,
         email: user.email,
@@ -82,13 +95,18 @@ export class AuthService {
     return this.login(result);
   }
 
-  async handleSocialLogin(profile: any, provider: string) {
-    const { id, emails, name, photos } = profile;
+  async handleSocialLogin(profile: any, provider: string, res?: any) {
+    const { id, emails, email, name, photos } = profile;
 
     console.log("social login", id, emails, name, photos);
-    const email = emails && emails.length > 0 ? emails[0].value : null;
+    let finalEmail = '';
+    if(!email) {
+      finalEmail = emails && emails.length > 0 ? emails[0].value : null;
+    } else {
+      finalEmail = email;
+    }
 
-    if (!email) {
+    if (!finalEmail) {
       throw new BadRequestException("Email is required");
     }
 
@@ -98,7 +116,7 @@ export class AuthService {
 
     // Check if user exists with this email
     if (!user) {
-      user = await this.usersService.findOne(email);
+      user = await this.usersService.findOne(finalEmail);
     }
 
     if (user) {
@@ -115,7 +133,7 @@ export class AuthService {
     } else {
       // Create new user
       user = await this.usersService.create({
-        email,
+        email: finalEmail,
         firstName: name?.givenName || name?.familyName ? name.givenName : '',
         lastName: name?.familyName || '',
         avatar: photos && photos.length > 0 ? photos[0].value : null,
@@ -125,7 +143,7 @@ export class AuthService {
     }
 
     const { password, ...result } = user;
-    return this.login(result, provider);
+    return this.login(result, provider, res);
   }
 
   async verifyToken(token: string) {
@@ -137,7 +155,6 @@ export class AuthService {
         accessToken: token,
       },
     });
-    console.log("userAuth", userAuth);
     if (!userAuth) {
       throw new UnauthorizedException("Invalid token");
     }
@@ -161,8 +178,17 @@ export class AuthService {
     };
   }
 
-  async refreshToken(refreshToken: string) {
+  async refreshToken(req: Request, res: Response) {
+
+    console.log("refreshToken", req.cookies);
+
+    const refreshToken = req.cookies?.refresh_token;
+    if (!refreshToken) {
+      throw new UnauthorizedException("Invalid token");
+    }
+
     const decoded = this.jwtService.verify(refreshToken);
+    console.log("decoded", decoded);
     const userAuth = await this.userAuthRepository.findOne({
       where: {
         refreshToken: refreshToken,
@@ -184,15 +210,15 @@ export class AuthService {
     userAuth.accessTokenExpiresAt = new Date(Date.now() + 1 * 60 * 60 * 1000);
     await this.userAuthRepository.save(userAuth);
 
-    return {
-      access_token: newAccessToken,
-      user: {
-        id: user.id,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        avatar: user.avatar,
-      },
-    };
+    if(res) {
+      res.cookie("access_token", newAccessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 1000 * 60 * 60, // 1hour
+      });
+    }
+    console.log("newAccessToken", res);
+
+    return res.json(new UserDto(user))
   }
 }
