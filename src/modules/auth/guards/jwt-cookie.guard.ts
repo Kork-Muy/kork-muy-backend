@@ -2,9 +2,8 @@
 import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-import { UsersService } from '../../users/users.service';
+import { UsersService } from '../users.service';
 import { Request } from 'express';
-import { UserDto } from 'src/shared/dto/use.dto';
 import { AuthService } from '../auth.service';
 
 @Injectable()

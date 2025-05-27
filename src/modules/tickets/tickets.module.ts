@@ -4,13 +4,19 @@ import { Ticket } from "./entities/ticket.entity";
 import { Event } from "../events/entities/event.entity";
 import { TicketsController } from "./tickets.controller";
 import { TicketsService } from "./tickets.service";
-import { UsersModule } from "../users/users.module";
 import { TicketSlot } from "./entities/ticket-slot.entity";
+import { AuthModule } from "../auth/auth.module";
+import { ConfigModule } from "@nestjs/config";
+import { JwtService } from "@nestjs/jwt";
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Ticket, Event, TicketSlot]), UsersModule],
+  imports: [
+    TypeOrmModule.forFeature([Ticket, Event, TicketSlot]), 
+    AuthModule,
+    ConfigModule,
+  ],
   controllers: [TicketsController],
-  providers: [TicketsService],
+  providers: [TicketsService, JwtService],
   exports: [TicketsService],
 })
 export class TicketsModule {}

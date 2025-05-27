@@ -9,7 +9,7 @@ import {
   ManyToMany,
   JoinTable,
 } from "typeorm";
-import { User } from "../../users/entities/user.entity";
+import { User } from "../../auth/entities/user.entity";
 import { Ticket } from "../../tickets/entities/ticket.entity";
 
 @Entity("events")

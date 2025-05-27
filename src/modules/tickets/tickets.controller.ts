@@ -15,6 +15,7 @@ import { TicketsService } from "./tickets.service";
 import { CreateTicketDto } from "./dto/create-ticket.dto";
 import { UpdateTicketDto } from "./dto/update-ticket.dto";
 import { BuyTicketDto } from "./dto/buy-ticket.dto";
+import { JwtCookieGuard } from "../auth/guards/jwt-cookie.guard";
 
 @Controller("tickets")
 @ApiTags("tickets")
@@ -22,7 +23,7 @@ export class TicketsController {
   constructor(private readonly ticketsService: TicketsService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtCookieGuard)
   @ApiOperation({ summary: "Create a new ticket" })
   @ApiResponse({ status: 201, description: "Ticket created successfully" })
   @ApiResponse({ status: 401, description: "Unauthorized" })
@@ -31,7 +32,7 @@ export class TicketsController {
   }
 
   @Post("buy-ticket")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtCookieGuard)
   @ApiOperation({ summary: "Buy a ticket" })
   @ApiResponse({ status: 200, description: "Ticket bought successfully" })
   @ApiResponse({ status: 401, description: "Unauthorized" })
@@ -40,7 +41,7 @@ export class TicketsController {
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtCookieGuard)
   @ApiOperation({ summary: "Get all tickets" })
   @ApiResponse({ status: 200, description: "Return all tickets" })
   @ApiResponse({ status: 401, description: "Unauthorized" })
@@ -49,7 +50,7 @@ export class TicketsController {
   }
 
   @Get(":id")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtCookieGuard)
   @ApiOperation({ summary: "Get a ticket by id" })
   @ApiResponse({ status: 200, description: "Return the ticket" })
   @ApiResponse({ status: 401, description: "Unauthorized" })
@@ -59,7 +60,7 @@ export class TicketsController {
   }
 
   @Patch(":id")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtCookieGuard)
   @ApiOperation({ summary: "Update a ticket" })
   @ApiResponse({ status: 200, description: "Ticket updated successfully" })
   @ApiResponse({ status: 401, description: "Unauthorized" })
@@ -69,7 +70,7 @@ export class TicketsController {
   }
 
   @Delete(":id")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtCookieGuard)
   @ApiOperation({ summary: "Delete a ticket" })
   @ApiResponse({ status: 200, description: "Ticket deleted successfully" })
   @ApiResponse({ status: 401, description: "Unauthorized" })

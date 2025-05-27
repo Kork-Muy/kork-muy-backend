@@ -7,7 +7,7 @@ import {
   ManyToOne,
   OneToOne,
 } from "typeorm";
-import { User } from "../../users/entities/user.entity";
+import { User } from "../../auth/entities/user.entity";
 import { Event } from "../../events/entities/event.entity";
 
 @Entity("tickets")

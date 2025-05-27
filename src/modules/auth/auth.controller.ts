@@ -11,7 +11,6 @@ import {
 import { AuthService } from "./auth.service";
 import { LocalAuthGuard } from "./guards/local-auth.guard";
 import { AuthGuard } from "@nestjs/passport";
-import { JwtAuthGuard } from "./guards/jwt-auth.guard";
 import { JwtCookieGuard } from "./guards/jwt-cookie.guard";
 import { Request, Response } from "express";
 
@@ -38,7 +37,6 @@ export class AuthController {
     return user;
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post("refresh-token")
   renewAccessToken(@Req() req: Request, @Res() res: Response) {
     return this.authService.refreshToken(req, res);

@@ -2,11 +2,12 @@ import {
   Injectable,
   UnauthorizedException,
   BadRequestException,
+  ConflictException,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { UsersService } from "../users/users.service";
+import { UsersService } from "./users.service";
 import * as bcrypt from "bcrypt";
-import { User } from "../users/entities/user.entity";
+import { User } from "./entities/user.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { UserAuth } from "./entities/user-auth.entity";
 import { Repository } from "typeorm";
@@ -85,7 +86,7 @@ export class AuthService {
 
     const existingUser = await this.usersService.findOne(userData.email);
     if (existingUser) {
-      throw new UnauthorizedException("User with this email already exists");
+      throw new ConflictException("User with this email already exists");
     }
     // Create new user
     const newUser = await this.usersService.create(userData);

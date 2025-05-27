@@ -14,6 +14,7 @@ import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { EventsService } from "./events.service";
 import { CreateEventDto } from "./dto/create-event.dto";
 import { UpdateEventDto } from "./dto/update-event.dto";
+import { JwtCookieGuard } from "../auth/guards/jwt-cookie.guard";
 
 @Controller("events")
 @ApiTags("events")
@@ -21,7 +22,7 @@ export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
   @Post()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtCookieGuard)
   @ApiOperation({ summary: "Create a new event" })
   @ApiResponse({ status: 201, description: "Event created successfully" })
   @ApiResponse({ status: 401, description: "Unauthorized" })
@@ -30,7 +31,7 @@ export class EventsController {
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtCookieGuard)
   @ApiOperation({ summary: "Get all events" })
   @ApiResponse({ status: 200, description: "Return all events" })
   @ApiResponse({ status: 401, description: "Unauthorized" })
@@ -39,7 +40,7 @@ export class EventsController {
   }
 
   @Get(":id")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtCookieGuard)
   @ApiOperation({ summary: "Get an event by id" })
   @ApiResponse({ status: 200, description: "Return the event" })
   @ApiResponse({ status: 401, description: "Unauthorized" })
@@ -49,7 +50,7 @@ export class EventsController {
   }
 
   @Patch(":id")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtCookieGuard)
   @ApiOperation({ summary: "Update an event" })
   @ApiResponse({ status: 200, description: "Event updated successfully" })
   @ApiResponse({ status: 401, description: "Unauthorized" })
@@ -59,7 +60,7 @@ export class EventsController {
   }
 
   @Delete(":id")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtCookieGuard)
   @ApiOperation({ summary: "Delete an event" })
   @ApiResponse({ status: 200, description: "Event deleted successfully" })
   @ApiResponse({ status: 401, description: "Unauthorized" })

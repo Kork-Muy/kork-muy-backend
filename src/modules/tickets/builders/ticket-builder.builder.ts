@@ -1,5 +1,5 @@
 import { Event } from "src/modules/events/entities/event.entity";
-import { User } from "src/modules/users/entities/user.entity";
+import { User } from "src/modules/auth/entities/user.entity";
 import { Ticket } from "../entities/ticket.entity";
 import { TicketDataDto } from "../dto/buy-ticket.dto";
 import { TicketSlot } from "../entities/ticket-slot.entity";

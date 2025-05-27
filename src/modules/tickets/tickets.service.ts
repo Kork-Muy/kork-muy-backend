@@ -5,10 +5,10 @@ import { Ticket } from "./entities/ticket.entity";
 import { CreateTicketDto } from "./dto/create-ticket.dto";
 import { UpdateTicketDto } from "./dto/update-ticket.dto";
 import { Event } from "../events/entities/event.entity";
-import { UsersService } from "../users/users.service";
+import { UsersService } from "../auth/users.service";
 import { BuyTicketDto } from "./dto/buy-ticket.dto";
 import { TicketBuilder } from "./builders/ticket-builder.builder";
-import { User } from "../users/entities/user.entity";
+import { User } from "../auth/entities/user.entity";
 import { TicketSlot } from "./entities/ticket-slot.entity";
 import { UserDto } from "src/shared/dto/use.dto";
 
