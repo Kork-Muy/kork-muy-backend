@@ -78,6 +78,12 @@ export class AuthService {
     };
   }
 
+  async logout(req: Request, res: Response) {
+    res.clearCookie("access_token");
+    res.clearCookie("refresh_token");
+    return { message: "Logged out successfully" };
+  }
+
   async register(userData: Partial<User>) {
     // Check if user already exists
     if (!userData.email) {
@@ -97,27 +103,22 @@ export class AuthService {
   }
 
   async handleSocialLogin(profile: any, provider: string, res?: any) {
-    const { id, emails, email, name, photos } = profile;
+    const { id, email, firstName, lastName, avatar } = profile;
 
-    console.log("social login", id, emails, name, photos);
-    let finalEmail = '';
-    if(!email) {
-      finalEmail = emails && emails.length > 0 ? emails[0].value : null;
-    } else {
-      finalEmail = email;
-    }
+    console.log("social login", profile);
+    
 
-    if (!finalEmail) {
+    if (!email) {
       throw new BadRequestException("Email is required");
     }
 
     // Check if user already exists with this social login
     let user = await this.usersService.findBySocialId(provider, id);
-    console.log("user", user);
+    console.log("handleSocialLogin User", user);
 
     // Check if user exists with this email
     if (!user) {
-      user = await this.usersService.findOne(finalEmail);
+      user = await this.usersService.findOne(email);
     }
 
     if (user) {
@@ -127,17 +128,17 @@ export class AuthService {
           [`${provider}Id`]: id,
         });
       }
-      user.firstName = name?.givenName || name?.familyName ? name.givenName : '';
-      user.lastName = name?.familyName || '';
-      user.avatar = photos && photos.length > 0 ? photos[0].value : null;
+      user.firstName = firstName;
+      user.lastName = lastName;
+      user.avatar = avatar;
       await this.usersService.update(user.id, user);
     } else {
       // Create new user
       user = await this.usersService.create({
-        email: finalEmail,
-        firstName: name?.givenName || name?.familyName ? name.givenName : '',
-        lastName: name?.familyName || '',
-        avatar: photos && photos.length > 0 ? photos[0].value : null,
+        email: email,
+        firstName: firstName,
+        lastName: lastName,
+        avatar: avatar,
         [`${provider}Id`]: id,
         isVerified: true, // Social login users are considered verified
       });
@@ -220,6 +221,6 @@ export class AuthService {
     }
     console.log("newAccessToken", res);
 
-    return res.json(new UserDto(user))
+    return res.json({ user: new UserDto(user) })
   }
 }

@@ -13,6 +13,7 @@ import { LocalAuthGuard } from "./guards/local-auth.guard";
 import { AuthGuard } from "@nestjs/passport";
 import { JwtCookieGuard } from "./guards/jwt-cookie.guard";
 import { Request, Response } from "express";
+import { UserDto } from "src/shared/dto/use.dto";
 
 @Controller("auth")
 export class AuthController {
@@ -26,20 +27,24 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post("login")
   async login(@Req() req: Request, @Res() res: Response) {
-    const { user } = await this.authService.login(req.user, "local", res);
-    return res.json(user);
+    return res.json(await this.authService.login(req.user, "local", res));
   }
 
   @UseGuards(JwtCookieGuard)
   @Get("profile")
   getProfile(@Req() req: Request) {
     const { user } = req;
-    return user;
+    return { user };
   }
 
   @Post("refresh-token")
   renewAccessToken(@Req() req: Request, @Res() res: Response) {
     return this.authService.refreshToken(req, res);
+  }
+
+  @Post("logout")
+  logout(@Req() req: Request, @Res() res: Response) {
+    return this.authService.logout(req, res);
   }
 
   // Google Auth
@@ -54,9 +59,10 @@ export class AuthController {
   async googleAuthCallback(@Req() req: any, @Res() res: Response) {
 
     console.log("google/callback", req.user.user);
-    const { user } = await this.authService.handleSocialLogin(req.user.user, "google", res);
 
+    const { user } = await this.authService.login(req.user.user, "google", res);
     const redirectUrl = `${process.env.FRONTEND_URL}/auth/social-callback`;
+    console.log("res google/callback", res.cookie);
     return res.redirect(redirectUrl);
   }
 

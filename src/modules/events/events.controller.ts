@@ -35,8 +35,10 @@ export class EventsController {
   @ApiOperation({ summary: "Get all events" })
   @ApiResponse({ status: 200, description: "Return all events" })
   @ApiResponse({ status: 401, description: "Unauthorized" })
-  findAll() {
-    return this.eventsService.findAll();
+  async findAll() {
+    return {
+      events: await this.eventsService.findAll(),
+    };
   }
 
   @Get(":id")

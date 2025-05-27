@@ -27,8 +27,20 @@ export class GoogleStrategy extends PassportStrategy(Strategy, "google") {
   ): Promise<any> {
     try {
       const { id, emails, name, photos } = profile;
-      console.log("profile", profile);
-      const user = await this.authService.handleSocialLogin(profile, "google");
+      console.log("profile validate google", profile);
+      const userObj = {
+        id,
+        email: emails[0].value,
+        firstName: name.givenName,
+        lastName: name.familyName,
+        avatar: photos[0].value,
+        provider: 'google',
+        _raw: profile._raw,
+        _json: profile._json,
+      }
+      console.log("userObj validate google", userObj);
+      const user = await this.authService.handleSocialLogin(userObj, "google");
+      console.log("user validate google", user);
       done(null, user);
     } catch (err) {
       done(err, false);
