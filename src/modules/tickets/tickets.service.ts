@@ -11,6 +11,7 @@ import { TicketBuilder } from "./builders/ticket-builder.builder";
 import { User } from "../auth/entities/user.entity";
 import { TicketSlot } from "./entities/ticket-slot.entity";
 import { UserDto } from "src/shared/dto/use.dto";
+import { CheckInTicketDto } from "../events/dto/check-in-ticket.dto";
 
 @Injectable()
 export class TicketsService {

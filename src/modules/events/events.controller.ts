@@ -8,13 +8,14 @@ import {
   Param,
   Delete,
   UseGuards,
+  Req,
 } from "@nestjs/common";
-import { ApiBearerAuth, ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
-import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
+import { ApiTags, ApiOperation, ApiResponse } from "@nestjs/swagger";
 import { EventsService } from "./events.service";
 import { CreateEventDto } from "./dto/create-event.dto";
 import { UpdateEventDto } from "./dto/update-event.dto";
 import { JwtCookieGuard } from "../auth/guards/jwt-cookie.guard";
+import { CheckInTicketDto } from "./dto/check-in-ticket.dto";
 
 @Controller("events")
 @ApiTags("events")
@@ -39,6 +40,16 @@ export class EventsController {
     return {
       events: await this.eventsService.findAll(),
     };
+  }
+
+  @Post("check-in-ticket")
+  @UseGuards(JwtCookieGuard)
+  @ApiOperation({ summary: "Check in a ticket" })
+  @ApiResponse({ status: 200, description: "Ticket checked in successfully" })
+  @ApiResponse({ status: 401, description: "Unauthorized" })
+  checkInTicket(@Body() checkInTicketDto: CheckInTicketDto, @Req() req: any) {
+    const user = req.user;
+    return this.eventsService.checkInTicket(checkInTicketDto, user);
   }
 
   @Get(":id")

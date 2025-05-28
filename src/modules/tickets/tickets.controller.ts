@@ -10,7 +10,6 @@ import {
   Req,
 } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard";
 import { TicketsService } from "./tickets.service";
 import { CreateTicketDto } from "./dto/create-ticket.dto";
 import { UpdateTicketDto } from "./dto/update-ticket.dto";
