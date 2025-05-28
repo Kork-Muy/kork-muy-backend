@@ -9,6 +9,7 @@ import { TicketsModule } from "./modules/tickets/tickets.module";
 import { AuctionsModule } from "./modules/auctions/auctions.module";
 import { QuestsModule } from "./modules/quests/quests.module";
 import configuration from "./config/configuration";
+import { FileModule } from "./modules/file/file.module";
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import configuration from "./config/configuration";
     EventsModule,
     TicketsModule,
     AuctionsModule,
+    FileModule,
     QuestsModule,
   ],
 })

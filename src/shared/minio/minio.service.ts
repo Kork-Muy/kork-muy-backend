@@ -2,6 +2,7 @@ import { Injectable, OnModuleInit } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import * as Minio from "minio";
 import { BufferedFile } from "./file.model";
+import { Readable } from "stream";
 
 @Injectable()
 export class MinioService implements OnModuleInit {
@@ -39,7 +40,7 @@ export class MinioService implements OnModuleInit {
       "X-Amz-Meta-Testing": "1234",
     };
 
-    const objectName = `${path}/${Date.now()}-${file.originalname}`;
+    const objectName = `${path}-${Date.now()}`;
 
     try {
       await this.minioClient.putObject(
@@ -68,8 +69,16 @@ export class MinioService implements OnModuleInit {
       return await this.minioClient.presignedGetObject(
         this.bucketName,
         objectName,
-        24 * 60 * 60, // 24 hours expiry
+        24 * 60 * 60 * 7, // 7 days expiry
       );
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async getFile(filePath: string): Promise<Readable> {
+    try {
+      return await this.minioClient.getObject(this.bucketName, filePath);
     } catch (error) {
       throw error;
     }
